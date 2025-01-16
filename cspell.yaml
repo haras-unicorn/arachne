@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json
+
+useGitignore: true
+version: "0.2"
+language: en
+ignorePaths:
+  - "Cargo.toml"
+  - "Cargo.lock"
+  - "flake.nix"
+  - "flake.lock"
+  - "justfile"
+  - "cspell.yaml"
+words:
+  - "haras"
+  - "nushell"
+  - "justfile"
+  - "commitlint"

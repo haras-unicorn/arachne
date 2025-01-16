@@ -1,0 +1,12 @@
+[package]
+name = "arachne"
+version.workspace = true
+description.workspace = true
+authors.workspace = true
+license.workspace = true
+readme.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow = "1.0.94"
+tokio = { version = "1.42.0", features = ["full"] }

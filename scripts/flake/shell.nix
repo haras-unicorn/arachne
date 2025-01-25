@@ -8,8 +8,14 @@
     pkgs.mkShell {
       RUST_BACKTRACE = "full";
 
+      shellHook = ''
+        name="$(basename -s .git "$(git config --get remote.origin.url)")"
+        export ''${name^^}_TEST_TEMP="$(git rev-parse --show-toplevel)/tmp"
+      '';
+
       buildInputs = with pkgs; [
         pkg-config
+        openssl
       ];
 
       packages = with pkgs; [

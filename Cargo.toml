@@ -3,7 +3,7 @@ resolver = "2"
 members = ["src/cli"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 description = "Humble Nix framework and Rust CLI for multi-node systems."
 authors = ["haras <social@haras.anonaddy.me>"]
 license = "MIT"

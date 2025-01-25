@@ -6,8 +6,6 @@
 #![deny(clippy::unreachable)]
 #![deny(clippy::allow_attributes_without_reason)]
 
-pub(crate) mod test;
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
   Ok(())

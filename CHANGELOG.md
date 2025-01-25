@@ -9,4 +9,10 @@ and adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/haras-unicorn/arachne/compare/v0.1.0...v0.1.1) - 2025-01-25
+
+### Other
+
+- init
+
 - init

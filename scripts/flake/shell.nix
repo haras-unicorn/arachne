@@ -19,6 +19,8 @@
         pkg-config
         openssl
         nixVersions.stable
+        git
+        docker-client
       ];
 
       packages = with pkgs; [

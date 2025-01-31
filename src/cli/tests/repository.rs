@@ -15,7 +15,7 @@ mod tests {
   #[tracing_test::traced_test]
   #[tokio::test]
   async fn repository_new() -> anyhow::Result<()> {
-    let name = "repo_new";
+    let name = "repo-new";
     let repo = super::common::repository::Repository::new(name).await?;
     let root = repo.root().to_owned();
     let dir = std::fs::read_dir(&root)?;

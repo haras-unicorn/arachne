@@ -51,8 +51,8 @@ lint:
 
     cd '{{ root }}'; cargo clippy -- -D warnings
 
-test:
-    cd '{{ root }}'; cargo test
+test *args:
+    cd '{{ root }}'; cargo test {{ args }}
 
 wiki:
     mdbook serve '{{ docs }}/wiki'

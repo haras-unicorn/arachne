@@ -52,7 +52,6 @@ name = "arachne"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "bollard",
  "git2",
  "lazy_static",
  "testcontainers",

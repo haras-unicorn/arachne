@@ -15,7 +15,8 @@ mod tests {
   #[tracing_test::traced_test]
   #[tokio::test]
   async fn image_new() -> anyhow::Result<()> {
-    let image = super::common::image::Image::new("test").await?;
+    let name = "image-new";
+    let image = super::common::image::Image::new(name).await?;
     assert!(image.artifact().is_absolute());
     Ok(())
   }

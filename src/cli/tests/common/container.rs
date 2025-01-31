@@ -1,4 +1,4 @@
-pub(crate) struct Container {
+pub struct Container {
   inner: testcontainers::ContainerAsync<testcontainers::GenericImage>,
 }
 

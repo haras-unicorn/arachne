@@ -16,7 +16,7 @@ lazy_static::lazy_static! {
   );
 }
 
-pub(crate) struct Image {
+pub struct Image {
   nix_path: std::path::PathBuf,
   docker_path: std::path::PathBuf,
   artifact: std::path::PathBuf,
@@ -26,9 +26,9 @@ pub(crate) struct Image {
 impl Image {
   pub(crate) async fn new(name: &str) -> anyhow::Result<Self> {
     let nix_path: std::path::PathBuf =
-      std::env::var(NAME.to_uppercase() + "_TEST_NIX_PATH")?.try_into()?;
+      std::env::var(NAME.to_uppercase() + "_TEST_NIX_PATH")?.into();
     let docker_path: std::path::PathBuf =
-      std::env::var(NAME.to_uppercase() + "_TEST_DOCKER_PATH")?.try_into()?;
+      std::env::var(NAME.to_uppercase() + "_TEST_DOCKER_PATH")?.into();
 
     let version = "latest";
     let base: String = BASE.to_string();
@@ -122,7 +122,7 @@ impl Image {
   }
 
   pub(crate) fn name(&self) -> &str {
-    return &self.name;
+    &self.name
   }
 }
 
@@ -131,7 +131,7 @@ impl Drop for Image {
     let result = match std::process::Command::new(self.docker_path.as_os_str())
       .arg("image")
       .arg("rm")
-      .arg(self.name.to_owned())
+      .arg(&self.name)
       .output()
     {
       Err(err) => {

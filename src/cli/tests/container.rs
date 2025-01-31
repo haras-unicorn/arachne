@@ -6,7 +6,7 @@
 #![deny(clippy::todo)]
 #![deny(clippy::unreachable)]
 #![deny(clippy::allow_attributes_without_reason)]
-#![allow(dead_code)]
+#![allow(dead_code, reason = "because other modules in common get flagged")]
 
 mod common;
 
@@ -16,7 +16,6 @@ mod tests {
   #[tokio::test]
   async fn container_new() -> anyhow::Result<()> {
     let _ = super::common::container::Container::new().await?;
-    assert!(true);
     Ok(())
   }
 }

@@ -1,8 +1,7 @@
 const NAME: &str = env!("CARGO_PKG_NAME");
 
-pub(crate) struct Repository {
+pub struct Repository {
   root: std::path::PathBuf,
-  #[allow(dead_code)]
   inner: git2::Repository,
 }
 

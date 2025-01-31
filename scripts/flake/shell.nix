@@ -11,7 +11,8 @@
       shellHook = ''
         name="$(basename -s .git "$(git config --get remote.origin.url)")"
         export ''${name^^}_TEST_TEMP="$(git rev-parse --show-toplevel)/tmp"
-        export ''${name^^}_NIX_PATH="$(which nix)"
+        export ''${name^^}_TEST_NIX_PATH="$(realpath $(which nix))"
+        export ''${name^^}_TEST_DOCKER_PATH="$(realpath $(which docker))"
       '';
 
       buildInputs = with pkgs; [

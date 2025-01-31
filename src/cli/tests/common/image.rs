@@ -18,6 +18,7 @@ lazy_static::lazy_static! {
 
 pub(crate) struct Image {
   nix_path: std::path::PathBuf,
+  docker_path: std::path::PathBuf,
   artifact: std::path::PathBuf,
   name: String,
 }
@@ -25,7 +26,10 @@ pub(crate) struct Image {
 impl Image {
   pub(crate) async fn new(name: &str) -> anyhow::Result<Self> {
     let nix_path: std::path::PathBuf =
-      std::env::var(NAME.to_uppercase() + "_NIX_PATH")?.try_into()?;
+      std::env::var(NAME.to_uppercase() + "_TEST_NIX_PATH")?.try_into()?;
+    let docker_path: std::path::PathBuf =
+      std::env::var(NAME.to_uppercase() + "_TEST_DOCKER_PATH")?.try_into()?;
+
     let version = "latest";
     let base: String = BASE.to_string();
     let spec = format!(
@@ -52,7 +56,7 @@ impl Image {
     );
     let name = format!("{NAME}/{name}:{version}");
 
-    let build_output = tokio::process::Command::new("nix")
+    let build_output = tokio::process::Command::new(nix_path.as_os_str())
       .arg("build")
       .arg("--print-out-paths")
       .arg("--no-link")
@@ -83,10 +87,10 @@ impl Image {
     //   byte_stream,
     //   None,
     // );
-    let load = tokio::process::Command::new("docker")
+    let load = tokio::process::Command::new(docker_path.as_os_str())
       .arg("load")
       .arg("--input")
-      .arg(artifact.clone())
+      .arg(artifact.as_os_str())
       .output()
       .await?;
     if !load.status.success() {
@@ -107,6 +111,7 @@ impl Image {
 
     Ok(Self {
       nix_path,
+      docker_path,
       artifact,
       name,
     })
@@ -123,7 +128,7 @@ impl Image {
 
 impl Drop for Image {
   fn drop(&mut self) {
-    let result = match std::process::Command::new("docker")
+    let result = match std::process::Command::new(self.docker_path.as_os_str())
       .arg("image")
       .arg("rm")
       .arg(self.name.to_owned())

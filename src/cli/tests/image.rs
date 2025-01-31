@@ -12,9 +12,11 @@ mod common;
 
 #[cfg(test)]
 mod tests {
+  #[tracing_test::traced_test]
   #[tokio::test]
   async fn image_new() -> anyhow::Result<()> {
-    let _ = super::common::image::Image::new().await?;
+    let image = super::common::image::Image::new("test").await?;
+    assert!(image.artifact().is_absolute());
     Ok(())
   }
 }

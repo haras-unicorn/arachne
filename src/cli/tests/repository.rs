@@ -12,6 +12,7 @@ mod common;
 
 #[cfg(test)]
 mod tests {
+  #[tracing_test::traced_test]
   #[tokio::test]
   async fn repository_new() -> anyhow::Result<()> {
     let name = "repo_new";

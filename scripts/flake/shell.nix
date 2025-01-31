@@ -11,11 +11,13 @@
       shellHook = ''
         name="$(basename -s .git "$(git config --get remote.origin.url)")"
         export ''${name^^}_TEST_TEMP="$(git rev-parse --show-toplevel)/tmp"
+        export ''${name^^}_NIX_PATH="$(which nix)"
       '';
 
       buildInputs = with pkgs; [
         pkg-config
         openssl
+        nixVersions.stable
       ];
 
       packages = with pkgs; [

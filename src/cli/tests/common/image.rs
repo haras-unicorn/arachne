@@ -87,8 +87,7 @@ impl Image {
       .arg("load")
       .arg("--input")
       .arg(artifact.clone())
-      .spawn()?
-      .wait_with_output()
+      .output()
       .await?;
     if !load.status.success() {
       match String::from_utf8(load.stderr) {

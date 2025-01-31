@@ -52,6 +52,7 @@ name = "arachne"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bollard",
  "git2",
  "testcontainers",
  "tokio",

@@ -12,7 +12,6 @@ mod common;
 
 #[cfg(test)]
 mod tests {
-
   #[tracing_test::traced_test]
   #[tokio::test]
   async fn container_new() -> anyhow::Result<()> {

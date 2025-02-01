@@ -1,10 +1,12 @@
-const NAME: &str = env!("CARGO_PKG_NAME");
+// TODO: pure
+
+const CARGO_PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
 lazy_static::lazy_static! {
   static ref BASE: String = format!(
     r#"
       pkgs.dockerTools.buildImage {{
-        name = "{NAME}/base";
+        name = "{CARGO_PKG_NAME}/base";
         tag = "latest";
         created = "now";
         copyToRoot = with pkgs.dockerTools; [
@@ -20,17 +22,21 @@ pub struct Image {
   nix_path: std::path::PathBuf,
   docker_path: std::path::PathBuf,
   artifact: std::path::PathBuf,
+  user: String,
+  repo: String,
   name: String,
+  tag: String,
 }
 
 impl Image {
-  pub(crate) async fn new(name: &str) -> anyhow::Result<Self> {
+  pub(crate) async fn new(repo: &str) -> anyhow::Result<Self> {
     let nix_path: std::path::PathBuf =
-      std::env::var(NAME.to_uppercase() + "_TEST_NIX_PATH")?.into();
+      std::env::var(CARGO_PKG_NAME.to_uppercase() + "_TEST_NIX_PATH")?.into();
     let docker_path: std::path::PathBuf =
-      std::env::var(NAME.to_uppercase() + "_TEST_DOCKER_PATH")?.into();
+      std::env::var(CARGO_PKG_NAME.to_uppercase() + "_TEST_DOCKER_PATH")?
+        .into();
 
-    let version = "latest";
+    let tag = "latest";
     let base: String = BASE.to_string();
     let spec = format!(
       r#"
@@ -39,8 +45,8 @@ impl Image {
           base = {base};
         in
         pkgs.dockerTools.buildImage {{
-          name = "{NAME}/{name}";
-          tag = "{version}";
+          name = "{CARGO_PKG_NAME}/{repo}";
+          tag = "{tag}";
           created = "now";
           fromImage = base;
           copyToRoot = pkgs.buildEnv {{
@@ -54,7 +60,6 @@ impl Image {
         }}
       "#
     );
-    let name = format!("{NAME}/{name}:{version}");
 
     let build_output = tokio::process::Command::new(nix_path.as_os_str())
       .arg("build")
@@ -107,13 +112,16 @@ impl Image {
         }
       }
     }
-    tracing::info!("Loaded image {name}");
+    tracing::info!("Loaded image {repo}");
 
     Ok(Self {
       nix_path,
       docker_path,
       artifact,
-      name,
+      user: CARGO_PKG_NAME.to_owned(),
+      repo: repo.to_owned(),
+      name: format!("{}/{}", CARGO_PKG_NAME, repo),
+      tag: tag.to_owned(),
     })
   }
 
@@ -121,8 +129,20 @@ impl Image {
     return self.artifact.as_path();
   }
 
+  pub(crate) fn repo(&self) -> &str {
+    &self.repo
+  }
+
+  pub(crate) fn user(&self) -> &str {
+    &self.user
+  }
+
   pub(crate) fn name(&self) -> &str {
     &self.name
+  }
+
+  pub(crate) fn tag(&self) -> &str {
+    &self.tag
   }
 }
 
@@ -131,7 +151,7 @@ impl Drop for Image {
     let result = match std::process::Command::new(self.docker_path.as_os_str())
       .arg("image")
       .arg("rm")
-      .arg(&self.name)
+      .arg(format!("{}/{}", self.user, self.repo))
       .output()
     {
       Err(err) => {

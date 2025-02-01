@@ -3,11 +3,12 @@ pub struct Container {
 }
 
 impl Container {
-  pub(crate) async fn new() -> anyhow::Result<Self> {
+  pub(crate) async fn new(name: &str, tag: &str) -> anyhow::Result<Self> {
     let inner = testcontainers::runners::AsyncRunner::start(
-      testcontainers::GenericImage::new("alpine", "latest"),
+      testcontainers::GenericImage::new(name, tag),
     )
     .await?;
+    tracing::info!("Created container {name}/{tag}");
     Ok(Self { inner })
   }
 }

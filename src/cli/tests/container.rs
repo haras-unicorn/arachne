@@ -15,7 +15,10 @@ mod tests {
   #[tracing_test::traced_test]
   #[tokio::test]
   async fn container_new() -> anyhow::Result<()> {
-    let _ = super::common::container::Container::new().await?;
+    let name = "container_new";
+    let image = super::common::image::Image::new(name).await?;
+    let _ = super::common::container::Container::new(image.name(), image.tag())
+      .await?;
     Ok(())
   }
 }

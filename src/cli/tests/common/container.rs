@@ -11,4 +11,8 @@ impl Container {
     tracing::info!("Created container {name}/{tag}");
     Ok(Self { inner })
   }
+
+  pub(crate) fn id(&self) -> &str {
+    return self.inner.id();
+  }
 }

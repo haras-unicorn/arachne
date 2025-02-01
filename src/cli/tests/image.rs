@@ -16,7 +16,8 @@ mod tests {
   #[tokio::test]
   async fn image_new() -> anyhow::Result<()> {
     let name = "image-new";
-    let image = super::common::image::Image::new(name).await?;
+    let image =
+      super::common::image::Image::new(name, &["hello"], "hello").await?;
     assert!(image.artifact().is_absolute());
     Ok(())
   }

@@ -1,5 +1,7 @@
 // TODO: pure
 
+use itertools::Itertools;
+
 const CARGO_PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
 lazy_static::lazy_static! {
@@ -29,20 +31,38 @@ pub struct Image {
 }
 
 impl Image {
-  pub(crate) async fn new(repo: &str) -> anyhow::Result<Self> {
+  pub(crate) async fn new<TPkgs, TCmd: std::fmt::Display>(
+    repo: &str,
+    pkgs: TPkgs,
+    cmd: TCmd,
+  ) -> anyhow::Result<Self>
+  where
+    TPkgs: IntoIterator,
+    TPkgs::Item: std::fmt::Display,
+  {
     let nix_path: std::path::PathBuf =
       std::env::var(CARGO_PKG_NAME.to_uppercase() + "_TEST_NIX_PATH")?.into();
     let docker_path: std::path::PathBuf =
       std::env::var(CARGO_PKG_NAME.to_uppercase() + "_TEST_DOCKER_PATH")?
         .into();
 
+    let pkgs = pkgs.into_iter().join(" ");
     let tag = "latest";
     let base: String = BASE.to_string();
     let spec = format!(
       r#"
         let
           pkgs = import <nixpkgs> {{ }};
+
           base = {base};
+
+          cmd = pkgs.writeShellApplication {{
+            name = "cmd";
+            runtimeInputs = with pkgs; [ {} ];
+            text = ''
+              {}
+            '';
+          }};
         in
         pkgs.dockerTools.buildImage {{
           name = "{CARGO_PKG_NAME}/{repo}";
@@ -51,14 +71,15 @@ impl Image {
           fromImage = base;
           copyToRoot = pkgs.buildEnv {{
             name = "image-root";
-            paths = [ pkgs.hello ];
+            paths = with pkgs; [ cmd ];
             pathsToLink = [ "/bin" ];
           }};
           config = {{
-            Cmd = [ "hello" ];
+            Cmd = [ "cmd" ];
           }};
         }}
-      "#
+      "#,
+      pkgs, cmd,
     );
 
     let build_output = tokio::process::Command::new(nix_path.as_os_str())

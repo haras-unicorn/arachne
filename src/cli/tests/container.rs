@@ -13,7 +13,7 @@ mod common;
 #[cfg(test)]
 mod tests {
   #[tracing_test::traced_test]
-  #[tokio::test]
+  #[tokio::test(flavor = "multi_thread")]
   async fn container_new() -> anyhow::Result<()> {
     let container =
       super::common::container::Container::new("alpine", "latest").await?;

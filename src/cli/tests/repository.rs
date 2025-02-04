@@ -13,7 +13,7 @@ mod common;
 #[cfg(test)]
 mod tests {
   #[tracing_test::traced_test]
-  #[tokio::test]
+  #[tokio::test(flavor = "multi_thread")]
   async fn repository_new() -> anyhow::Result<()> {
     let name = "repo-new";
     let repo = super::common::repository::Repository::new(name).await?;

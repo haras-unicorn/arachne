@@ -13,7 +13,11 @@ let
       pkgs.pkg-config
     ];
     buildInputs = [
+      pkgs.pkg-config
       pkgs.openssl
+      pkgs.nixVersions.stable
+      pkgs.git
+      pkgs.docker-client
     ];
   };
 

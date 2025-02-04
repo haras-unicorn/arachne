@@ -15,4 +15,13 @@ impl Container {
   pub(crate) fn id(&self) -> &str {
     return self.inner.id();
   }
+
+  pub(crate) async fn host(&self) -> anyhow::Result<std::net::IpAddr> {
+    #[allow(clippy::todo, reason = "Implement via hickory_dns")]
+    return match self.inner.get_host().await? {
+      url::Host::Domain(_) => todo!("Domain container host not implemented"),
+      url::Host::Ipv4(v4) => Ok(std::net::IpAddr::V4(v4)),
+      url::Host::Ipv6(v6) => Ok(std::net::IpAddr::V6(v6)),
+    };
+  }
 }

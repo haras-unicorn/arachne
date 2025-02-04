@@ -15,12 +15,12 @@
         export ''${name^^}_TEST_DOCKER_PATH="$(realpath $(which docker))"
       '';
 
-      buildInputs = with pkgs; [
-        pkg-config
-        openssl
-        nixVersions.stable
-        git
-        docker-client
+      buildInputs = [
+        pkgs.pkg-config
+        pkgs.openssl
+        pkgs.nixVersions.stable
+        pkgs.git
+        pkgs.docker-client
       ];
 
       packages = with pkgs; [

@@ -6,8 +6,6 @@
       pkgs = import nixpkgs { inherit system; };
     in
     pkgs.mkShell {
-      RUST_BACKTRACE = "full";
-
       shellHook = ''
         name="$(basename -s .git "$(git config --get remote.origin.url)")"
         export ''${name^^}_TEST_TEMP="$(git rev-parse --show-toplevel)/tmp"

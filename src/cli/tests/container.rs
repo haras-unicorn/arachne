@@ -17,7 +17,8 @@ mod tests {
   async fn container_new() -> anyhow::Result<()> {
     let container =
       super::common::container::Container::new("alpine", "latest").await?;
-    assert!(!container.id().is_empty());
+    let id = container.id().await?;
+    assert!(!id.is_empty());
     Ok(())
   }
 }

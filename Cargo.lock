@@ -52,6 +52,7 @@ name = "arachne"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "futures",
  "git2",
  "itertools",
  "lazy_static",
@@ -60,7 +61,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tracing-test",
- "url",
 ]
 
 [[package]]

@@ -93,9 +93,7 @@ impl Image {
       .await?;
     if !build_output.status.success() {
       let stderr = String::from_utf8(build_output.stderr)?;
-      return Err(anyhow::format_err!(
-        "Image creation failed because {stderr}"
-      ));
+      return Err(anyhow::anyhow!("Image creation failed because {stderr}"));
     }
     let artifact: std::path::PathBuf =
       String::from_utf8(build_output.stdout)?.trim().into();
@@ -122,12 +120,10 @@ impl Image {
     if !load.status.success() {
       match String::from_utf8(load.stderr) {
         Ok(stderr) => {
-          return Err(anyhow::format_err!(
-            "Failed loading image because {stderr}"
-          ))
+          return Err(anyhow::anyhow!("Failed loading image because {stderr}"))
         }
         Err(err) => {
-          return Err(anyhow::format_err!(
+          return Err(anyhow::anyhow!(
             "Failed loading image and failed parsing stderr because {err}"
           ));
         }
@@ -169,6 +165,7 @@ impl Image {
 
 impl Drop for Image {
   fn drop(&mut self) {
+    tracing::info!("Removing image {}", self.name);
     let result = match std::process::Command::new(self.docker_path.as_os_str())
       .arg("image")
       .arg("rm")

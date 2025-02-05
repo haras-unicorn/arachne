@@ -1,7 +1,5 @@
 // TODO: pure
 
-use itertools::Itertools;
-
 const CARGO_PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
 lazy_static::lazy_static! {
@@ -20,7 +18,7 @@ lazy_static::lazy_static! {
   );
 }
 
-pub struct Image {
+pub struct DockerImage {
   nix_path: std::path::PathBuf,
   docker_path: std::path::PathBuf,
   artifact: std::path::PathBuf,
@@ -30,7 +28,7 @@ pub struct Image {
   tag: String,
 }
 
-impl Image {
+impl DockerImage {
   pub(crate) async fn new<TPkgs, TCmd: std::fmt::Display>(
     repo: &str,
     pkgs: TPkgs,
@@ -46,7 +44,7 @@ impl Image {
       std::env::var(CARGO_PKG_NAME.to_uppercase() + "_TEST_DOCKER_PATH")?
         .into();
 
-    let pkgs = pkgs.into_iter().join(" ");
+    let pkgs = itertools::Itertools::join(&mut pkgs.into_iter(), " ");
     let tag = "latest";
     let base: String = BASE.to_string();
     let spec = format!(
@@ -163,7 +161,7 @@ impl Image {
   }
 }
 
-impl Drop for Image {
+impl Drop for DockerImage {
   fn drop(&mut self) {
     tracing::info!("Removing image {}", self.name);
     let result = match std::process::Command::new(self.docker_path.as_os_str())

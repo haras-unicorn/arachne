@@ -10,6 +10,7 @@
         name="$(basename -s .git "$(git config --get remote.origin.url)")"
         export ''${name^^}_TEST_TEMP="$(git rev-parse --show-toplevel)/tmp"
         export ''${name^^}_TEST_NIX_PATH="$(realpath $(which nix))"
+        export ''${name^^}_TEST_NIXOS_CONTAINER_PATH="$(realpath $(which nixos-container))"
         export ''${name^^}_TEST_DOCKER_PATH="$(realpath $(which docker))"
       '';
 
@@ -17,6 +18,7 @@
         pkgs.pkg-config
         pkgs.openssl
         pkgs.nixVersions.stable
+        pkgs.nixos-container
         pkgs.git
         pkgs.docker-client
       ];

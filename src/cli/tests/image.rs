@@ -14,10 +14,11 @@ mod common;
 mod tests {
   #[tracing_test::traced_test]
   #[tokio::test(flavor = "multi_thread")]
-  async fn image_new() -> anyhow::Result<()> {
-    let name = "image-new";
+  async fn docker_image_new() -> anyhow::Result<()> {
+    let name = "docker-image-new";
     let image =
-      super::common::image::Image::new(name, &["hello"], "hello").await?;
+      super::common::image::docker::DockerImage::new(name, &["hello"], "hello")
+        .await?;
     assert!(image.artifact().is_absolute());
     Ok(())
   }

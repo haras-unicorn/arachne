@@ -14,9 +14,11 @@ mod common;
 mod tests {
   #[tracing_test::traced_test]
   #[tokio::test(flavor = "multi_thread")]
-  async fn container_new() -> anyhow::Result<()> {
-    let container =
-      super::common::container::Container::new("alpine", "latest").await?;
+  async fn docker_container_new() -> anyhow::Result<()> {
+    let container = super::common::container::docker::DockerContainer::new(
+      "alpine", "latest",
+    )
+    .await?;
     let id = container.id().await?;
     assert!(!id.is_empty());
     Ok(())

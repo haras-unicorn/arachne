@@ -14,9 +14,9 @@ mod common;
 mod tests {
   #[tracing_test::traced_test]
   #[tokio::test(flavor = "multi_thread")]
-  async fn image_container_run() -> anyhow::Result<()> {
-    let name = "image-container-run";
-    let image = super::common::image::Image::new(
+  async fn docker_image_container_run() -> anyhow::Result<()> {
+    let name = "docker-image-container-run";
+    let image = super::common::image::docker::DockerImage::new(
       name,
       &["hello"],
       r#"
@@ -24,9 +24,11 @@ mod tests {
       "#,
     )
     .await?;
-    let container =
-      super::common::container::Container::new(image.name(), image.tag())
-        .await?;
+    let container = super::common::container::docker::DockerContainer::new(
+      image.name(),
+      image.tag(),
+    )
+    .await?;
     let output = container.output().await?;
     assert!(output == "Hello, world!\n");
     Ok(())
@@ -34,10 +36,10 @@ mod tests {
 
   #[tracing_test::traced_test]
   #[tokio::test(flavor = "multi_thread")]
-  async fn image_container_wait() -> anyhow::Result<()> {
-    let name = "image-container-run";
+  async fn docker_image_docker_container_wait() -> anyhow::Result<()> {
+    let name = "docker-image-container-run";
     let timeout_s = 5;
-    let image = super::common::image::Image::new(
+    let image = super::common::image::docker::DockerImage::new(
       name,
       &["coreutils", "hello"],
       format!(
@@ -49,9 +51,11 @@ mod tests {
       ),
     )
     .await?;
-    let container =
-      super::common::container::Container::new(image.name(), image.tag())
-        .await?;
+    let container = super::common::container::docker::DockerContainer::new(
+      image.name(),
+      image.tag(),
+    )
+    .await?;
     tokio::time::timeout(
       std::time::Duration::from_secs(timeout_s * 2),
       container.wait("Hello, world!"),

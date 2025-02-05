@@ -16,6 +16,7 @@ let
       pkgs.pkg-config
       pkgs.openssl
       pkgs.nixVersions.stable
+      pkgs.nixos-container
       pkgs.git
       pkgs.docker-client
     ];

@@ -1,4 +1,4 @@
-pub struct Container {
+pub struct DockerContainer {
   inner: std::sync::Arc<
     tokio::sync::Mutex<
       Option<testcontainers::ContainerAsync<testcontainers::GenericImage>>,
@@ -6,7 +6,7 @@ pub struct Container {
   >,
 }
 
-impl Container {
+impl DockerContainer {
   pub(crate) async fn new(name: &str, tag: &str) -> anyhow::Result<Self> {
     let inner = testcontainers::runners::AsyncRunner::start(
       testcontainers::GenericImage::new(name, tag),
@@ -118,7 +118,7 @@ impl Container {
   }
 }
 
-impl Drop for Container {
+impl Drop for DockerContainer {
   fn drop(&mut self) {
     futures::executor::block_on(async {
       let mut inner = self.inner.clone().lock_owned().await;

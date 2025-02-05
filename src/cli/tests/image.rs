@@ -22,4 +22,16 @@ mod tests {
     assert!(image.artifact().is_absolute());
     Ok(())
   }
+  #[tracing_test::traced_test]
+  #[tokio::test(flavor = "multi_thread")]
+  async fn nixos_image_new() -> anyhow::Result<()> {
+    let name = "nixos-image-new";
+    let image = super::common::image::nixos::NixosImage::new(
+      name,
+      &["{ pkgs, ... }: { environment.systemPackages = [ pkgs.hello ]; }"],
+    )
+    .await?;
+    assert!(image.artifact().is_absolute());
+    Ok(())
+  }
 }

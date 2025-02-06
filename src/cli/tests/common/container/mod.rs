@@ -1,2 +1,2 @@
 pub mod docker;
-pub mod nixos;
+pub mod systemd_nspawn;

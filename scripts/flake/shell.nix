@@ -10,8 +10,10 @@
         name="$(basename -s .git "$(git config --get remote.origin.url)")"
         export ''${name^^}_TEST_TEMP="$(git rev-parse --show-toplevel)/tmp"
         export ''${name^^}_TEST_NIX_PATH="$(realpath $(which nix))"
-        export ''${name^^}_TEST_NIXOS_CONTAINER_PATH="$(realpath $(which nixos-container))"
         export ''${name^^}_TEST_DOCKER_PATH="$(realpath $(which docker))"
+        export ''${name^^}_TEST_NIXOS_CONTAINER_PATH="$(realpath $(which nixos-container))"
+        export ''${name^^}_TEST_SYSTEMD_NSPAWN_PATH="$(realpath $(which systemd-nspawn))"
+        export ''${name^^}_TEST_SLIRP4NETNS_PATH="$(realpath $(which slirp4netns))"
       '';
 
       buildInputs = [
@@ -21,6 +23,8 @@
         pkgs.nixos-container
         pkgs.git
         pkgs.docker-client
+        pkgs.systemd
+        pkgs.slirp4netns
       ];
 
       packages = with pkgs; [

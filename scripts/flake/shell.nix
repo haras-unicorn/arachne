@@ -14,6 +14,7 @@
         export ''${name^^}_TEST_NIXOS_CONTAINER_PATH="$(realpath $(which nixos-container))"
         export ''${name^^}_TEST_SYSTEMD_NSPAWN_PATH="$(realpath $(which systemd-nspawn))"
         export ''${name^^}_TEST_SLIRP4NETNS_PATH="$(realpath $(which slirp4netns))"
+        export ''${name^^}_TEST_NSENTER_PATH="$(realpath $(which nsenter))"
       '';
 
       buildInputs = [
@@ -25,6 +26,7 @@
         pkgs.docker-client
         pkgs.systemd
         pkgs.slirp4netns
+        pkgs.util-linux
       ];
 
       packages = with pkgs; [

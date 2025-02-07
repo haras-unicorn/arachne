@@ -19,6 +19,7 @@ let
       pkgs.nixos-container
       pkgs.git
       pkgs.docker-client
+      pkgs.util-linux
     ];
   };
 

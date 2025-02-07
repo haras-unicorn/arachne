@@ -23,4 +23,16 @@ mod tests {
     assert!(!id.is_empty());
     Ok(())
   }
+
+  #[tracing_test::traced_test]
+  #[tokio::test(flavor = "multi_thread")]
+  async fn systemd_nspawn_container_new() -> anyhow::Result<()> {
+    let container = super::common::container::docker::DockerContainer::new(
+      "alpine", "latest",
+    )
+    .await?;
+    let id = container.id().await?;
+    assert!(!id.is_empty());
+    Ok(())
+  }
 }

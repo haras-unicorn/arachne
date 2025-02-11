@@ -8,7 +8,7 @@
     pkgs.mkShell {
       shellHook = ''
         name="$(basename -s .git "$(git config --get remote.origin.url)")"
-        export ''${name^^}_TEST_TEMP="$(git rev-parse --show-toplevel)/tmp"
+        export ''${name^^}_TEST_TMP="$(git rev-parse --show-toplevel)/tmp"
         export ''${name^^}_TEST_NIX_PATH="$(realpath $(which nix))"
         export ''${name^^}_TEST_DOCKER_PATH="$(realpath $(which docker))"
         export ''${name^^}_TEST_NIXOS_CONTAINER_PATH="$(realpath $(which nixos-container))"

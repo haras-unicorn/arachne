@@ -8,8 +8,10 @@ pub struct Repository {
 impl Repository {
   pub(crate) async fn new(name: &str) -> anyhow::Result<Self> {
     let tmp: std::path::PathBuf =
-      std::env::var(CARGO_PKG_NAME.to_uppercase() + "_TEST_TEMP")?.into();
-    let root: std::path::PathBuf = tmp.join(name);
+      std::env::var(CARGO_PKG_NAME.to_uppercase() + "_TEST_TMP")?.into();
+    let base = tmp.join("repositories");
+
+    let root: std::path::PathBuf = base.join(name);
     if tokio::fs::try_exists(&root).await? {
       tokio::fs::remove_dir_all(&root).await?;
     }

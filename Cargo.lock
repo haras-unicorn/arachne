@@ -52,6 +52,7 @@ name = "arachne"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "caps",
  "futures",
  "git2",
  "itertools",
@@ -180,6 +181,17 @@ name = "bytes"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "325918d6fe32f23b19878fe4b34794ae41fc19ddbe53b10571a4874d44ffd39b"
+
+[[package]]
+name = "caps"
+version = "0.5.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "190baaad529bcfbde9e1a19022c42781bdb6ff9de25721abdb8fd98c0807730b"
+dependencies = [
+ "libc",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "cc"

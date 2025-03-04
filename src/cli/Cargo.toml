@@ -15,6 +15,7 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 [dev-dependencies]
+caps = { version = "0.5.5", features = ["serde_support"] }
 futures = "0.3.31"
 git2 = "0.20.0"
 lazy_static = "1.5.0"

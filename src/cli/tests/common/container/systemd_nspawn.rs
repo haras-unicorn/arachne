@@ -6,7 +6,6 @@ pub struct SystemdNspawnContainer {
   pub root: std::path::PathBuf,
   pub profiles: std::path::PathBuf,
   pub gcroots: std::path::PathBuf,
-  child: Option<tokio::process::Child>,
 }
 
 impl SystemdNspawnContainer {
@@ -51,59 +50,75 @@ impl SystemdNspawnContainer {
       anyhow::bail!("nix-env failed with status: {}", status);
     }
 
-    let mut container = Self {
+    let container = Self {
       name: name.to_owned(),
       artifact,
       root,
       profiles,
       gcroots,
-      child: None,
     };
 
     container.start().await?;
     Ok(container)
   }
 
-  pub async fn start(&mut self) -> anyhow::Result<()> {
-    let system_path = self.profiles.join("system");
+  pub async fn start(&self) -> anyhow::Result<()> {
+    CapabilityGuard::new(caps::Capability::CAP_SYS_ADMIN)?;
 
-    let mut cmd = tokio::process::Command::new("systemd-nspawn");
+    let mut cmd = std::process::Command::new("systemd-nspawn");
     cmd
-      .arg("--quiet")
-      .arg("--directory")
-      .arg(self.root.to_str().unwrap())
       .arg("--machine")
       .arg(&self.name)
-      .arg("--private-users=yes")
+      .arg("--directory")
+      .arg(self.root.to_str().unwrap())
+      .arg("--keep-unit")
+      .arg("--private-users=pick")
+      .arg("--private-users-ownership=auto")
+      .arg("--private-network")
       .arg("--notify-ready=yes")
       .arg("--boot")
-      .env("SYSTEM_PATH", system_path.to_str().unwrap())
-      .arg("--bind-ro=/nix/store")
-      .arg("--bind-ro=/nix/var/nix/db")
-      .arg("--bind-ro=/nix/var/nix/daemon-socket")
+      .arg("--bind-ro=/nix/store:/nix/store:idmap")
+      .arg("--bind-ro=/nix/var/nix/db:/nix/var/nix/db:idmap")
+      .arg("--bind-ro=/nix/var/nix/db:/nix/var/nix/daemon-socket:idmap")
       .arg(format!(
-        "--bind={}:{}",
-        self.profiles.join("system").to_str().unwrap(),
+        "--bind={}:{}:idmap",
+        self.profiles.to_str().unwrap(),
         "/nix/var/nix/profiles"
       ))
       .arg(format!(
-        "--bind={}:{}",
+        "--bind={}:{}:idmap",
         self.gcroots.to_str().unwrap(),
         "/nix/var/nix/gcroots"
-      ));
+      ))
+      .arg("/nix/var/nix/profiles/system/init");
 
-    let child = anyhow::Context::context(
-      cmd
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .spawn(),
+    let status = anyhow::Context::context(
+      cmd.status(),
       "Failed to spawn systemd-nspawn container",
     )?;
-    self.child = Some(child);
+    if !status.success() {
+      anyhow::bail!("Failed starting container with status: {}", status);
+    }
+
     Ok(())
   }
 
-  pub async fn stop(&mut self) -> anyhow::Result<()> {
+  pub async fn status(&self) -> anyhow::Result<String> {
+    let output = anyhow::Context::context(
+      tokio::process::Command::new("machinectl")
+        .arg("status")
+        .arg(&self.name)
+        .output()
+        .await,
+      "Failed to get status of container with machinectl",
+    )?;
+    if !output.status.success() {
+      anyhow::bail!("machinectl status exited with status: {}", output.status);
+    }
+    Ok(String::from_utf8(output.stdout)?)
+  }
+
+  pub async fn stop(&self) -> anyhow::Result<()> {
     let status = anyhow::Context::context(
       tokio::process::Command::new("machinectl")
         .arg("terminate")
@@ -115,7 +130,6 @@ impl SystemdNspawnContainer {
     if !status.success() {
       anyhow::bail!("machinectl terminate exited with status: {}", status);
     }
-    self.child = None;
     Ok(())
   }
 }
@@ -141,5 +155,44 @@ impl Drop for SystemdNspawnContainer {
         );
       }
     });
+  }
+}
+
+struct CapabilityGuard {
+  capability: caps::Capability,
+}
+
+impl CapabilityGuard {
+  fn new(capability: caps::Capability) -> anyhow::Result<Self> {
+    if !caps::has_cap(None, caps::CapSet::Permitted, capability)? {
+      println!(
+        "Permitted caps: {:?}",
+        caps::read(None, caps::CapSet::Permitted)
+      );
+      println!(
+        "Effective caps: {:?}",
+        caps::read(None, caps::CapSet::Effective)
+      );
+      println!(
+        "Inheritable: {:?}",
+        caps::read(None, caps::CapSet::Inheritable)
+      );
+      anyhow::bail!("Binary needs {} capability", capability);
+    }
+    caps::raise(None, caps::CapSet::Effective, capability)?;
+    Ok(Self { capability })
+  }
+}
+
+impl Drop for CapabilityGuard {
+  fn drop(&mut self) {
+    if let Err(err) = caps::drop(None, caps::CapSet::Effective, self.capability)
+    {
+      tracing::error!(
+        "Failed dropping capability {} because {}",
+        self.capability,
+        err,
+      );
+    }
   }
 }

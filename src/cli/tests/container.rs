@@ -27,12 +27,20 @@ mod tests {
   #[tracing_test::traced_test]
   #[tokio::test(flavor = "multi_thread")]
   async fn systemd_nspawn_container_new() -> anyhow::Result<()> {
-    let container = super::common::container::docker::DockerContainer::new(
-      "alpine", "latest",
+    let name = "nixos-image-new";
+    let image = super::common::image::nixos::NixosImage::new(
+      name,
+      &["{ pkgs, ... }: { environment.systemPackages = [ pkgs.hello ]; }"],
     )
     .await?;
-    let id = container.id().await?;
-    assert!(!id.is_empty());
+
+    let container =
+      super::common::container::systemd_nspawn::SystemdNspawnContainer::new(
+        name,
+        image.artifact().to_path_buf(),
+      )
+      .await?;
+    container.status().await?;
     Ok(())
   }
 }

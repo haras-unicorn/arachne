@@ -13,7 +13,18 @@ default:
 
 dev *args:
     cd '{{ root }}'; \
+      cargo build; \
+      sudo setcap cap_sys_admin+eip ./target/debug/arachne; \
       cargo run --bin arachne -- {{ args }}
+
+test *args:
+    cd '{{ root }}'; \
+      cargo test --no-run {{ args }}; \
+      glob ./target/debug/deps/arachne-* | \
+        each { |file| \
+          sudo setcap cap_sys_admin+eip $file \
+        }; \
+      cargo test {{ args }}
 
 format:
     cd '{{ root }}'; just --fmt --unstable
@@ -50,9 +61,6 @@ lint:
       --quiet ...(fd '.*\.md' | lines)
 
     cd '{{ root }}'; cargo clippy -- -D warnings
-
-test *args:
-    cd '{{ root }}'; cargo test {{ args }}
 
 wiki:
     mdbook serve '{{ docs }}/wiki'
